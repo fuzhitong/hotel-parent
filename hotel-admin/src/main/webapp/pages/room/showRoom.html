@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<link href="/hotel-admin/static/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/hotel-admin/static/js/jquery.js"></script>
+<!-- 引入vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<style type="text/css">
+	.rightinfo>div{
+		margin-right:5px;
+		margin-bottom:5px;
+		display:inline-block;
+		text-align:center;
+		width:100px;
+		height:100px;
+		color:black;
+		font-weight:bolder;
+	}
+	.kx{ /* 空闲 */
+		background:green;
+	}
+	.kx:hover{ /* 空闲 */
+		cursor:pointer;
+	}
+	.yrz{ /* 已经入住 */
+		background:red;
+	}
+	.ds{
+		background:yellow;
+	}
+</style>
+</head>
+<body>
+<div class="place"> <span>位置：</span>
+  <ul class="placeul">
+    <li>客房管理</li>
+    <li>客房信息查询</li>
+  </ul>
+</div>
+<div class="rightinfo">
+	<div v-for="room in roomsList" v-if="room.room_status=='0'" class="kx" @click="toInRoom">
+		房间号：{{room.room_num}}<br/>
+		价格：{{room.room_price}}<br/>
+		类型：{{room.room_type_name}}
+	</div>
+	<div v-for="room in roomsList" v-if="room.room_status=='1'" class="yrz">
+		房间号：{{room.room_num}}<br/>
+		价格：{{room.room_price}}<br/>
+		类型：{{room.room_type_name}}
+	</div>
+	<div v-for="room in roomsList" v-if="room.room_status=='2'" class="ds">
+		房间号：{{room.room_num}}<br/>
+		价格：{{room.room_price}}<br/>
+		类型：{{room.room_type_name}}
+	</div>
+</div>
+<script type="text/javascript">
+	const vue1 = new Vue({
+		el:".rightinfo",
+		data:{
+			roomsList:[]
+		},
+		methods:{
+			toInRoom(){
+				window.location.href="/hotel-admin/pages/bill/checkin.html";
+			}
+		},
+		mounted(){
+			this.$http.post('/hotel-admin//getRoomInfo.do').then(
+				function(rs){
+					this.roomsList=rs.body;
+				}		
+			);
+		}
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>结账退房</title>
+<link href="/hotel-admin/static/css/style.css" rel="stylesheet" type="text/css" />
+<link href="/hotel-admin/static/css/select.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/hotel-admin/static/js/jquery.js"></script>
+<script type="text/javascript" src="/hotel-admin/static/js/jquery.idTabs.min.js"></script>
+<script type="text/javascript" src="/hotel-admin/static/js/select-ui.min.js"></script>
+<script type="text/javascript" src="/hotel-admin/static/editor/kindeditor.js"></script>
+<script type="text/javascript" src="/hotel-admin/static/js/laydate/laydate.js"></script>
+<script type="text/javascript">
+    KE.show({
+        id : 'content7',
+        cssPath : './index.css'
+    });
+  </script>
+  
+ <!-- 引入vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script type="text/javascript">
+
+$(document).ready(function(e) {
+    $(".select1").uedSelect({
+		width : 345			  
+	});
+	$(".select2").uedSelect({
+		width : 167  
+	});
+	$(".select3").uedSelect({
+		width : 100
+	});
+	
+	
+	
+});
+
+
+</script>
+</head>
+
+<body>
+<div class="place"> <span>位置：</span>
+  <ul class="placeul">
+    <li>首页</li>
+    <li>入住信息管理</li>
+    <li>结账退房</li>
+  </ul>
+</div>
+<div class="formbody">
+  <div class="formtitle"><span>消费信息</span></div>
+<div id="usual1" class="usual">
+  <div id="tab1" class="tabson">
+    <ul class="forminfo">
+      <li>
+        <label>房间号<b>*</b></label>
+        <div class="vocation"> 
+          <select id="roomId" class="select1" name="roomId">
+          	<option>--请选择--</option>
+            <option :value="room.id" v-for="room in roomList">{{room.room_num}}</option>
+          </select>
+        </div>
+      </li>
+      <li  style="margin-top:20px;"> 
+        <label for="name" >客人姓名<b>*</b></label>
+        <div class="vocation">
+          <input name="customerName" readonly="readonly" type="text" class="dfinput" style="width:344px;"/>
+        </div>
+      </li>
+      <br /> <br />
+      <li>
+        <label for="price" style="cursor:pointer" >房型<b>*</b></label>
+        <div class="vocation">
+          <input name="roomType" id="roomType" class="dfinput" value=""  style="width:344px;"/>
+        </div>
+      </li> <br />
+      <li>
+        <label for="price" style="cursor:pointer" >单价<b>*</b></label>
+        <div class="vocation">
+          <input name="price" id="price" class="dfinput" value=""  style="width:344px;"/>
+        </div>
+      </li> <br />
+      <li>
+        <label for="yajin" style="cursor:pointer" >押金<b>*</b></label>
+        <div class="vocation">
+          <input name="money"  id="yajin" type="text" class="dfinput" value="押金"  style="width:344px;"/>
+        </div>
+      </li> <br />
+       <li>
+        <label for="qita" style="cursor:pointer" >其他消费<b>*</b></label>
+        <div class="vocation">
+          <input name="qita" readonly="readonly"  id="qita" type="text" class="dfinput" value="0"  style="width:344px;"/>
+        </div>
+      </li> <br />
+      <li>
+        <label for="date1" style="cursor:pointer" >入住时间<b>*</b></label>
+        <div class="vocation">
+          <input name="inTime"  id="date1" class="dfinput" value="2016-06-01"  style="width:344px;"/>
+        </div>
+      </li> <br />
+      <li>
+        <label for="Calendar" style="cursor:pointer" >退房时间<b>*</b></label>
+        <div class="vocation">
+          <input readonly="readonly" name="outTime" type="text"  class="laydate-icon span1-1" id="Calendar" style="width:324px; height:30px; line-height:28px; text-indent:10px; "/>
+        </div>
+      </li><br/>
+      <li class="aaa" style="display:none">
+        <label for="date1" style="cursor:pointer" >入住天数<b>*</b></label>
+        <div class="vocation">
+          <input name="days" type="text"  class="dfinput" readonly="readonly" style="width:344px;"/>
+        </div>
+      </li> <br />
+      <li class="aaa" style="display:none">
+        <label for="Calendar" style="cursor:pointer" >总金额<b>*</b></label>
+        <div class="vocation">
+        	<input type="hidden" name="total"></input>
+         	<input name="cost" readonly="readonly" type="text" class="dfinput" value="0"  style="width:344px;"/>
+        </div>
+      </li><br/>
+      <li class="aaa" style="display:none">
+        <label for="Calendar" style="cursor:pointer" >优惠金额<b>*</b></label>
+        <div class="vocation">
+         	<input name="yh" type="text" class="dfinput" value="0"  style="width:344px;"/>
+        </div> <br />
+      </li>
+      <li>
+        <label>&nbsp;</label>
+        <input type="hidden" name="iriId" />
+        <input @click="outRoom" type="submit" class="btn" value="提交" />
+      </li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript">
+	const vue1 = new Vue({
+		el:"#tab1",
+		data:{
+			roomList:[]
+		},
+		methods:{
+			outRoom(){
+				var dataJson = {
+						"roomId":jQuery("#roomId>option:selected").val(),
+						"iriId":jQuery("input[name=iriId]").val(),
+						"qita":jQuery("input[name=qita]").val()
+				};
+				this.$http.post("/hotel-admin/outRoom.do",dataJson,{emulateJSON:true}).then(
+					function(rs){
+						if(rs.body){
+							window.location.href="/hotel-admin/getInRoomInfo.do"
+						}else{
+							window.alert("退房失败，请重试");
+						}
+					},
+					function(err){
+						window.alert("out.html数据请求失败");
+					}
+				);
+			}
+		},
+		mounted(){
+			this.$http.post("/hotel-admin/getRoomsByStatus.do").then(
+				function(rs){
+					this.roomList = rs.body;
+				}		
+			);
+		}
+	});
+	
+	jQuery(function(){
+		jQuery("#roomId").change(function(){
+			//获取房间id
+			var roomId = jQuery(this).find("option:selected").val();
+			jQuery.ajax({
+				url:"/hotel-admin/findOutRoomInfoByRoomId.do",
+				type:"post",
+				dataType:"json",
+				data:{
+					"roomId":roomId
+				},
+				success:function(rs){
+					jQuery("input[name=customerName]").val(rs.customer_name);
+					jQuery("input[name=price]").val(rs.room_price);
+					jQuery("input[name=money]").val(rs.money);
+					var om = rs.orderMoney
+					if(om==null){
+						om=0;
+					}
+					jQuery("input[name=qita]").val(om);
+					jQuery("input[name=inTime]").val(rs.create_date);
+					jQuery("input[name=roomType]").val(rs.room_type_name);
+					//显示隐藏的部分
+					jQuery(".aaa").show(1000);
+					//入住天数
+					jQuery("input[name=days]").val(rs.days);
+					//总消费金额
+					jQuery("input[name=cost]").val(rs.cost);
+					jQuery("input[name=total]").val(rs.cost);
+					jQuery("input[name=iriId]").val(rs.iriId);
+				},
+				error:function(rs){
+					window.alert("恭喜您,out.html页面的ajax请求出错了");
+				}
+			});
+		});
+		
+		//优惠金额
+		/* jQuery("input[name=yh]").change(function(){
+			var yhMoney = jQuery(this).val();
+			var cost = jQuery("input[name=cost]").val();
+			cost = cost-yhMoney;
+			jQuery("input[name=cost]").val(cost);
+		}); */
+		jQuery("input[name=yh]").keyup(function(){
+			var yhMoney = jQuery(this).val();
+			var cost = jQuery("input[name=total]").val();
+			cost = cost-yhMoney;
+			jQuery("input[name=cost]").val(cost);
+		});
+	});
+</script>
+<script type="text/javascript"> 
+      $("#usual1 ul").idTabs(); 
+</script> 
+<script type="text/javascript">
+	$('.tablelist tbody tr:odd').addClass('odd');
+	!function(){
+		laydate.skin('qianhuang');
+		laydate({elem: '#Calendar'});
+		laydate.skin('qianhuang');
+		laydate({elem: '#Calendar2'});
+		}();
+		$(function dd(){
+			var d=new Date(),str="";
+			str+=(d.getFullYear()+"-");
+			str+="0";
+			str+=(d.getMonth()+1+"-");
+			str+=d.getDate();
+			//获取时分秒
+			str+=" "+d.getHours()+":";
+			str+=d.getMinutes()+":"
+			str+=d.getSeconds();
+			$("#Calendar").attr("value",str);
+			$("#Calendar2").attr("value",str);
+		});
+
+	</script>
+</div>
+</body>
+</html>

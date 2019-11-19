@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fuzt.mapper.SystemUserMapper">
+
+	<!-- 添加系统用户 -->
+	<!-- keyProperty="userId" keyColumn="id",返回表的主键值（用户id），就是返回id的值赋值给userId -->
+	<insert id="insertSystemUser" parameterType="Map" useGeneratedKeys="true" keyProperty="userId" keyColumn="id">
+		INSERT INTO SYSTEM_USER VALUES(NULL,#{username},#{pwd},NOW(),'1','0')
+	</insert>
+	
+	<!-- 添加二级权限信息 -->
+	<insert id="insertAuthority" parameterType="Long">
+		INSERT INTO `user_authority` VALUES(#{0},#{1})
+	</insert>
+	
+</mapper>

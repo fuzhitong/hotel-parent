@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+       
+       <!-- 配置包扫描 -->
+	   <context:component-scan base-package="net.fuzt.service.impl" />
+       
+       <!-- 配置读取.properties配置文件的工具类 -->
+       <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+       	<!-- 指定database.properties文件的路径 -->
+       	<property name="location" value="classpath:database.properties"></property>
+       </bean>
+       
+       <!-- 数据源 -->
+       <bean id="basicDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+       	<!-- 配置driver -->
+       	<property name="driverClassName" value="${driver}"></property>
+       	<!-- 配置url -->
+       	<property name="url" value="${url}"></property>
+       	<!-- 配置username -->
+       	<property name="username" value="${username}"></property>
+       	<!-- 配置password -->
+       	<property name="password" value="${password}"></property>
+       </bean>
+       
+       <!-- 扫描保存sql语句的局部配置xml文件 -->
+       <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+       		<!-- 指定数据源 -->
+       		<property name="dataSource" ref="basicDataSource"></property>
+       		<!-- 指定mybatis主配置文件的位置 -->
+       		<property name="configLocation" value="classpath:mybatis.xml"></property>
+       		<!--  指定局部xml文件的位置-->
+       		<property name="mapperLocations" value="classpath*:net/fuzt/mapper/*.xml"></property>
+       </bean>
+       
+       <!-- 扫描dao层接口中的方法，并且将其与对应的xml文件关联起来 -->
+       <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+       		<!-- 指定dao层接口的存放位置 -->
+       		<property name="basePackage" value="net.fuzt.mapper"></property>
+       </bean>
+       
+       <!-- 配置注解事务驱动 -->
+       <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+			<property name="dataSource" ref="basicDataSource" />
+	   </bean>
+	   <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+		
+		
+		
+		<!-- 配置redis连接池，连接信息 -->
+		<!-- 配置redis -->
+       	<!-- redis数据源 -->
+		<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+			<property name="maxIdle" value="10" />
+			<property name="maxTotal" value="30" />
+			<property name="maxWaitMillis" value="1000" />
+			<property name="testOnBorrow" value="true" />
+		</bean>
+		<!-- Spring-redis连接池管理工厂 -->
+		<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" p:host-name="127.0.0.1" p:port="6379"
+			p:password="" p:pool-config-ref="poolConfig" />
+		<!-- 使用中间类解决RedisCache.jedisConnectionFactory的静态注入，从而使MyBatis实现第三方缓存 -->
+		<bean id="redisCacheTransfer" class="net.fuzt.utils.RedisCacheTransfer">
+			<property name="jedisConnectionFactory" ref="jedisConnectionFactory" />
+		</bean>
+       
+ </beans>

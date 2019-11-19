@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fuzt.mapper.LoginMapper">
+
+	<resultMap type="net.fuzt.pojo.OneMenu" id="BaseOneMenu">
+		<result property="oneId" javaType="Long" column="oneId"/>
+		<result property="oneName" javaType="String" column="oneName"/>
+		<collection property="twoMenuList" ofType="net.fuzt.pojo.TwoMenu">
+			<result property="twoId" javaType="Long" column="twoId"/>
+			<result property="twoName" javaType="String" column="twoName"/>
+			<result property="url" javaType="String" column="url"/>
+			<result property="parent" javaType="Long" column="parent"/>
+		</collection>
+	</resultMap>
+
+	<select id="getAuthorityByUsername" resultMap="BaseOneMenu" parameterType="String">
+		SELECT * FROM
+		(SELECT sa.id AS oneId,sa.authority_name AS oneName FROM `system_authority` sa
+		INNER JOIN user_authority ua ON sa.id=ua.authority_id
+		INNER JOIN `system_user` su ON su.id=ua.user_id WHERE su.username=#{0} AND sa.parent=0) t1
+		INNER JOIN
+		(SELECT sa.id AS twoId,sa.authority_name AS twoName,sa.authority_url AS url,
+		sa.parent FROM `system_authority` sa
+		INNER JOIN user_authority ua ON sa.id=ua.authority_id
+		INNER JOIN `system_user` su ON su.id=ua.user_id WHERE su.username=#{0} AND sa.parent!=0) t2
+		ON t1.oneId=t2.parent
+	</select>
+	
+	<!-- 授权信息列表 -->
+	<select id="getSQAuthority" resultMap="BaseOneMenu">
+		SELECT * FROM 
+		(SELECT id AS oneId,authority_name AS oneName FROM `system_authority` WHERE parent=0) t1
+		INNER JOIN
+		(SELECT id AS twoId,authority_name AS twoName,authority_url AS url,parent
+		FROM `system_authority` WHERE parent!=0) t2
+		ON t2.parent=t1.oneId WHERE t1.oneId!=5
+	</select>
+	
+</mapper>

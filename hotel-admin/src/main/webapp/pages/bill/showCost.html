@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<link href="/hotel-admin/static/css/style.css" rel="stylesheet" type="text/css" />
+<script src="/hotel-admin/static/js/bootstrap/jquery.min.js"></script>
+ <!-- 引入vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+  $(".click").click(function(){
+  $(".tip").fadeIn(200);
+  });
+  
+  $(".tiptop a").click(function(){
+  $(".tip").fadeOut(200);
+});
+
+  $(".sure").click(function(){
+  $(".tip").fadeOut(100);
+});
+
+  $(".cancel").click(function(){
+  $(".tip").fadeOut(100);
+});
+
+});
+</script>
+</head>
+
+<body>
+<div class="place"> <span>位置：</span>
+  <ul class="placeul">
+    <li>入住管理</li>
+    <li>消费记录查询</li>
+  </ul>
+</div>
+<div class="rightinfo">
+  <div class="tools">
+    <ul class="toolbar">
+      <li class="click"><span><img src="/hotel-admin/static/images/t01.png" /></span>添加</li>
+      <li class="click"><span><img src="/hotel-admin/static/images/t02.png" /></span>修改</li>
+      <li class="click"><span><img src="/hotel-admin/static/images/t03.png" /></span>删除</li>
+    </ul>
+    
+    <div class="toolbar1">
+      <table>
+        <form method="post" name="serch" action="javascript:void(0)">
+          <tr>
+            <td class="zi"><span>选择分类：</span></td>
+            <td>
+             <select id="conditionType">
+                <option value="customerName">客人姓名</option>
+                <option value="phone">手机号码</option>
+                <option value="idcard">身份证号码</option>
+              </select></td>
+            <td class="zi"><span>关键字：</span></td>
+            <td><input id="keyword" name="customerName" type="text" placeholder="与分类关联"/></td>
+            <td><input type="submit" value="查询" class="button" @click="getByCon"/></td>
+          </tr>
+        </form>
+      </table>
+    </div>
+    
+  </div>
+  
+  <script type="text/javascript">
+  	jQuery(function(){
+  		jQuery("#conditionType").change(function(){
+  			var v = jQuery(this).find("option:selected").val();
+  			jQuery("#keyword").attr("name",v);
+  		});
+  	});
+  </script>
+  
+  <table class="tablelist">
+    <thead>
+      <tr>
+        <th><input name="" type="checkbox" value="" checked="checked"/></th>
+        <th>编号</th>
+        <th>客人姓名</th>
+        <th>性别</th>
+        <th>身份证号</th>
+        <th>手机号</th>
+        <th>房间号</th>
+        <th>订单号</th>
+        <th>消费金额</th>
+        <th>是否结算</th>
+        <th>创建时间</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(map,index) in costList">
+        <td><input name="" type="checkbox" value="" /></td>
+        <td>{{index+1}}</td>
+        <td>{{map.customer_name}}</td>
+        <td>{{map.gender=='1'?'男':'女'}}</td>
+        <td>{{map.idcard}}</td>
+        <td>{{map.phone}}</td>
+        <td>{{map.room_num}}</td>
+        <td>{{map.order_num}}</td>
+        <td>{{map.order_money}}</td>
+        <td>{{map.order_status=='0'?'未结算':'已经结算'}}</td>
+        <td>{{map.create_date}}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <script type="text/javascript">
+  	const vue1 = new Vue({
+  		el:".rightinfo",
+  		data:{
+  			costList:[]
+  		},
+  		methods:{
+  			getByCon(){
+  				var jsonData = {
+  						"aaa":$("#keyword").val()
+  				}
+  				var jsonData = '{"'+$("#keyword").attr("name")+'":"'+$("#keyword").val()+'"}';
+  				jsonData = JSON.parse(jsonData);
+  				console.log(jsonData)
+  				this.$http.post("/hotel-admin/findCost.do",jsonData,{emulateJSON:true}).then(
+	  				function(rs){
+	  					this.costList=rs.body;
+	  				}		
+	  			);
+  			}
+  		},
+  		mounted(){
+  			this.$http.post("/hotel-admin/findCost.do").then(
+  				function(rs){
+  					this.costList=rs.body;
+  				}		
+  			);
+  		}
+  	});
+  </script>
+ 
+ 
+ 
+ 
+  <div class="tip">
+    <div class="tiptop"><span>提示信息</span><a></a></div>
+    <div class="tipinfo"> <span><img src="images/ticon.png" /></span>
+      <div class="tipright">
+        <p>是否确认对信息的修改 ？</p>
+        <cite>如果是请点击确定按钮 ，否则请点取消。</cite> </div>
+    </div>
+    <div class="tipbtn">
+      <input name="" type="button"  class="sure" value="确定" />
+      &nbsp;
+      <input name="" type="button"  class="cancel" value="取消" />
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+	$('.tablelist tbody tr:odd').addClass('odd');
+	</script>
+</body>
+</html>
