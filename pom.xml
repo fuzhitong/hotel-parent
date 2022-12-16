@@ -15,7 +15,7 @@
 	<properties>
 		<project.build.sourceEncoding>utf8</project.build.sourceEncoding>
 		<maven.compiler.encoding>utf8</maven.compiler.encoding>
-		<spring.version>3.2.2.RELEASE</spring.version>
+		<spring.version>5.2.20.RELEASE</spring.version>
 		<jackson.version>2.1.4</jackson.version>
 		<swagger.springmvc.version>1.0.2</swagger.springmvc.version>
 		<commons.fileupload.version>1.2.1</commons.fileupload.version>
